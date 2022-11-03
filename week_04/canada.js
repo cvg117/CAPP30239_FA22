@@ -8,20 +8,20 @@ const svg = d3.select("#chart")
     .append("svg")
     .attr("viewBox", [0, 0, width, height]);
 
-d3.csv('long-term-interest-monthly.csv').then(data => {
+d3.csv('long-term-interest-canada.csv').then(data => {
     let timeParse = d3.timeParse("%Y-%m"); // parse time to JS format so code can read it
 
     for (let d of data) {
-        d.Value = +d.Value;
-        d.Date = timeParse(d.Date); // using timeParse function we created above
+        d.Num = +d.Num;
+        d.Month = timeParse(d.Month); // using timeParse function we created above
     }
 
     let x = d3.scaleTime()
-        .domain(d3.extent(data, d => d.Date)) // returns an array
+        .domain(d3.extent(data, d => d.Month)) // returns an array
         .range([margin.left, width - margin.right]);
 
     let y = d3.scaleLinear()
-        .domain([0,d3.max(data, d => d.Value)]).nice() // nice to round up axis tick
+        .domain([0,d3.max(data, d => d.Num)]).nice() // nice to round up axis tick
         .range([height - margin.bottom, margin.top]);
     
     svg.append("g")
@@ -35,7 +35,7 @@ d3.csv('long-term-interest-monthly.csv').then(data => {
 
     svg.append("g")
       .attr("transform", `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x).tickSizeOuter(0));
+      .call(d3.axisBottom(x).tickFormat(d3.timeFormat("%B")));
 
     svg.append("text")
       .attr("class", "x-label")
@@ -56,8 +56,8 @@ d3.csv('long-term-interest-monthly.csv').then(data => {
       .text("Interest rate");
     
     let line = d3.line()
-        .x(d => x(d.Date))
-        .y(d => y(d.Value))
+        .x(d => x(d.Month))
+        .y(d => y(d.Num))
         .curve(d3.curveNatural); // more: https://observablehq.com/@d3/d3-line#cell-244
 
     svg.append("path")
@@ -66,4 +66,14 @@ d3.csv('long-term-interest-monthly.csv').then(data => {
         .attr("fill", "none")
         .attr("stroke", "steelblue");
 
+    svg.append("g")
+      .attr("fill", "steelblue")
+      .attr("stroke", "white")
+      .selectAll("circle")
+      .data(data)
+      .join("circle")
+      .attr("cx", d => x(d.Month))
+      .attr("cy", d => y(d.Num))
+      .attr("r", 3)
+      .attr("opacity", 0.75);
   });
