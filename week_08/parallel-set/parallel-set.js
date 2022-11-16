@@ -12,6 +12,13 @@ const svg = d3.select("#chart")
   .attr("height", height)
   .attr("viewBox", [0, 0, width, height]);
 
+d3.select("body")
+  .on("click", function (e) {
+    let str = `Females earn more advanced degrees at all education levels`;
+    d3.select("h2")
+      .html(str);
+  });
+
 d3.csv("../degrees.csv").then((data) => {
 
   for (let d of data) {
@@ -30,7 +37,7 @@ d3.csv("../degrees.csv").then((data) => {
     .nodeWidth(nodeWidth)
     .nodePadding(nodePadding)
     .extent([
-      [margin.left, margin.top], 
+      [margin.left, margin.top],
       [width - margin.right, height - margin.bottom]
     ]);
 
@@ -61,18 +68,19 @@ d3.csv("../degrees.csv").then((data) => {
     .attr("stroke-width", d => d.width)
     .attr("opacity", 0.75)
     .style("mix-blend-mode", "multiply")
-    .on("mouseover", function() {
+    .on("mouseover", function () {
       d3.select(this)
         .attr("opacity", 1);
     })
-    .on("mouseout", function() {
+    .on("mouseout", function () {
       d3.select(this)
         .attr("opacity", 0.75);
     })
-    .on("click", function(e, d) {
+    .on("click", function (e, d) {
       let str = `${d.source.name} earned ${d.source.value.toLocaleString()} ${d.target.name} Degrees`;
       d3.select("h2")
         .html(str);
+      e.stopPropagation();
     })
     .append("title")
     .text(d => `${d.source.name} ${d.target.name}`);
@@ -130,7 +138,7 @@ function nodeLinkData(data, [source, target]) {
     links.push({
       source: indexByName[d[source]],
       target: indexByName[d[target]],
-      value: d.value 
+      value: d.value
     });
   }
 
